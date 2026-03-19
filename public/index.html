@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoteFlow Pro - SaaS de notes intelligent</title>
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Toast notifications -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    
+    <style>
+        :root {
+            --primary: #7c3aed;
+            --primary-dark: #6d28d9;
+            --secondary: #0f172a;
+            --accent: #f59e0b;
+            --dark: #020617;
+            --light: #f8fafc;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f1f5f9;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Background particles effect */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.5;
+            background: radial-gradient(circle at 20% 30%, rgba(124, 58, 237, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 70%, rgba(245, 158, 11, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .navbar-glass {
+            background: rgba(2, 6, 23, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transform: rotate(10deg);
+            transition: transform 0.3s;
+        }
+
+        .logo:hover .logo-icon {
+            transform: rotate(0deg);
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #fff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .badge-premium {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            color: #0f172a;
+            padding: 0.35rem 1rem;
+            border-radius: 100px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+
+        .stats-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .stats-card:hover {
+            border-color: #7c3aed;
+            box-shadow: 0 20px 40px -15px rgba(124, 58, 237, 0.5);
+        }
+
+        .stats-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(168, 85, 247, 0.2));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #7c3aed;
+        }
+
+        .add-note-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 24px;
+            padding: 2rem;
+        }
+
+        .form-control {
+            background: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid rgba(124, 58, 237, 0.2) !important;
+            border-radius: 16px !important;
+            padding: 0.75rem 1rem !important;
+            color: #f1f5f9 !important;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: #7c3aed !important;
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.2) !important;
+        }
+
+        .form-control::placeholder {
+            color: #64748b;
+            font-weight: 300;
+        }
+
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            border: none;
+            border-radius: 16px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px -5px #7c3aed;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .note-card {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 24px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .note-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #7c3aed, #a855f7, #f59e0b);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .note-card:hover::before {
+            opacity: 1;
+        }
+
+        .note-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: #7c3aed;
+            box-shadow: 0 30px 40px -20px rgba(124, 58, 237, 0.5);
+        }
+
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .note-title {
+            font-weight: 600;
+            font-size: 1.25rem;
+            color: white;
+            margin: 0;
+        }
+
+        .note-content {
+            color: #94a3b8;
+            line-height: 1.6;
+            flex-grow: 1;
+            margin-bottom: 1rem;
+            word-wrap: break-word;
+        }
+
+        .note-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(124, 58, 237, 0.2);
+        }
+
+        .note-date {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .btn-delete {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+            border-radius: 12px;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+        }
+
+        .btn-delete:hover {
+            background: #ef4444;
+            border-color: #ef4444;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 30px;
+            border: 2px dashed rgba(124, 58, 237, 0.3);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #7c3aed;
+            opacity: 0.5;
+            margin-bottom: 1rem;
+        }
+
+        .toast-success {
+            background: linear-gradient(135deg, #10b981, #059669) !important;
+        }
+
+        .search-bar {
+            position: relative;
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+        }
+
+        .search-bar input {
+            padding-left: 2.5rem !important;
+        }
+
+        .category-tag {
+            background: rgba(124, 58, 237, 0.15);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            border-radius: 20px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.7rem;
+            color: #cbd5e1;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .note-card {
+            animation: slideIn 0.5s ease forwards;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Particles Background -->
+    <div class="particles"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar-glass">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="bi bi-pencil-square"></i>
+                    </div>
+                    <span class="logo-text">NoteFlow</span>
+                    <span class="badge-premium ms-3">PRO</span>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="text-end d-none d-md-block">
+                        <small class="text-secondary">Espace professionnel</small>
+                        <div class="fw-bold">SaaS - Version 2.0</div>
+                    </div>
+                    <div class="stats-card p-2 px-3">
+                        <i class="bi bi-shield-check text-success me-2"></i>
+                        <span class="small">Sécurisé</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container py-5 position-relative" style="z-index: 1;">
+        
+        <!-- Stats Section -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-3 col-6">
+                <div class="stats-card d-flex align-items-center gap-3">
+                    <div class="stats-icon">
+                        <i class="bi bi-journal-text"></i>
+                    </div>
+                    <div>
+                        <small class="text-secondary">Total notes</small>
+                        <h3 class="mb-0" id="totalNotes">0</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stats-card d-flex align-items-center gap-3">
+                    <div class="stats-icon">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+                    <div>
+                        <small class="text-secondary">Dernière note</small>
+                        <h6 class="mb-0" id="lastNote">-</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stats-card d-flex align-items-center gap-3">
+                    <div class="stats-icon">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <div>
+                        <small class="text-secondary">Collaborateurs</small>
+                        <h3 class="mb-0">12</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="stats-card d-flex align-items-center gap-3">
+                    <div class="stats-icon">
+                        <i class="bi bi-cloud-check"></i>
+                    </div>
+                    <div>
+                        <small class="text-secondary">Sync</small>
+                        <h6 class="mb-0 text-success">En ligne</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="row mb-4">
+            <div class="col-md-6 mx-auto">
+                <div class="search-bar">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="searchInput" class="form-control" placeholder="Rechercher dans vos notes..." onkeyup="filterNotes()">
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Note Form -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8">
+                <div class="add-note-card">
+                    <h4 class="mb-4"><i class="bi bi-plus-circle me-2"></i>Créer une nouvelle note</h4>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <input type="text" id="title" class="form-control" placeholder="Titre de la note *">
+                        </div>
+                        <div class="col-12">
+                            <textarea id="content" class="form-control" rows="4" placeholder="Contenu de votre note... *"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <select id="category" class="form-control">
+                                <option value="Personnel">Personnel</option>
+                                <option value="Travail">Travail</option>
+                                <option value="Idées">Idées</option>
+                                <option value="Important">Important</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <button onclick="addNote()" class="btn btn-primary-custom w-100" id="saveBtn">
+                                <i class="bi bi-cloud-upload me-2"></i>Publier la note
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes Grid -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-stars me-2"></i>Vos notes récentes</h2>
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-sort-down"></i> Trier par
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark">
+                    <li><a class="dropdown-item" href="#" onclick="sortNotes('recent')">Plus récent</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="sortNotes('old')">Plus ancien</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="sortNotes('alpha')">Alphabétique</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="notes" class="row g-4"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    
+    <script>
+        // Configuration toastr
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "timeOut": "3000",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+
+        let allNotes = [];
+        let currentSort = 'recent';
+
+        // Simuler une base de données locale pour la démo
+        let localNotes = JSON.parse(localStorage.getItem('noteflow_notes')) || [];
+
+        async function addNote() {
+            const title = document.getElementById("title").value;
+            const content = document.getElementById("content").value;
+            const category = document.getElementById("category").value;
+
+            if(!title || !content){
+                toastr.warning('Veuillez remplir tous les champs obligatoires', 'Champs manquants');
+                return;
+            }
+
+            // Animation bouton
+            const btn = document.getElementById('saveBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="loading me-2"></span>Publication...';
+            btn.disabled = true;
+
+            // Créer la note
+            const newNote = {
+                _id: Date.now().toString(),
+                title: title,
+                content: content,
+                category: category,
+                createdAt: new Date().toISOString(),
+                author: 'Utilisateur Pro'
+            };
+
+            // Simuler appel API
+            setTimeout(() => {
+                localNotes.unshift(newNote);
+                localStorage.setItem('noteflow_notes', JSON.stringify(localNotes));
+                
+                document.getElementById("title").value = "";
+                document.getElementById("content").value = "";
+                
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                
+                toastr.success('Note créée avec succès', 'Félicitations !');
+                loadNotes();
+            }, 500);
+        }
+
+        async function loadNotes() {
+            // Simuler chargement depuis le localStorage
+            allNotes = localNotes;
+            
+            const div = document.getElementById("notes");
+            
+            if (allNotes.length === 0) {
+                div.innerHTML = `
+                    <div class="col-12">
+                        <div class="empty-state">
+                            <i class="bi bi-journal-richtext"></i>
+                            <h4>Aucune note pour le moment</h4>
+                            <p class="text-secondary">Créez votre première note pour commencer !</p>
+                        </div>
+                    </div>
+                `;
+                updateStats(0);
+                return;
+            }
+
+            applySort();
+
+            let notesHtml = '';
+            allNotes.forEach(note => {
+                const date = new Date(note.createdAt || Date.now());
+                const formattedDate = date.toLocaleDateString('fr-FR', { 
+                    day: 'numeric', 
+                    month: 'long', 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+
+                notesHtml += `
+                    <div class="col-xl-4 col-lg-6">
+                        <div class="note-card">
+                            <div class="note-header">
+                                <h5 class="note-title">${escapeHtml(note.title)}</h5>
+                                <span class="category-tag">
+                                    <i class="bi bi-tag me-1"></i>${note.category || 'Général'}
+                                </span>
+                            </div>
+                            <div class="note-content">
+                                ${escapeHtml(note.content)}
+                            </div>
+                            <div class="note-footer">
+                                <span class="note-date">
+                                    <i class="bi bi-clock me-1"></i>${formattedDate}
+                                </span>
+                                <button onclick="deleteNote('${note._id}')" class="btn-delete">
+                                    <i class="bi bi-trash3 me-1"></i>Supprimer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            div.innerHTML = notesHtml;
+            updateStats(allNotes.length);
+            
+            if (allNotes.length > 0) {
+                document.getElementById('lastNote').innerText = 
+                    new Date(allNotes[0].createdAt || Date.now()).toLocaleDateString('fr-FR');
+            }
+        }
+
+        async function deleteNote(id) {
+            if(confirm("Voulez-vous vraiment supprimer cette note ?")){
+                localNotes = localNotes.filter(note => note._id !== id);
+                localStorage.setItem('noteflow_notes', JSON.stringify(localNotes));
+                
+                toastr.info('Note supprimée', 'Suppression effectuée');
+                loadNotes();
+            }
+        }
+
+        function filterNotes() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            if (searchTerm === '') {
+                allNotes = localNotes;
+            } else {
+                allNotes = localNotes.filter(note => 
+                    note.title.toLowerCase().includes(searchTerm) || 
+                    note.content.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            applySort();
+        }
+
+        function sortNotes(type) {
+            currentSort = type;
+            applySort();
+        }
+
+        function applySort() {
+            if (currentSort === 'recent') {
+                allNotes.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+            } else if (currentSort === 'old') {
+                allNotes.sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
+            } else if (currentSort === 'alpha') {
+                allNotes.sort((a, b) => a.title.localeCompare(b.title));
+            }
+            
+            displayNotes();
+        }
+
+        function displayNotes() {
+            const div = document.getElementById("notes");
+            
+            if (allNotes.length === 0) {
+                div.innerHTML = `
+                    <div class="col-12">
+                        <div class="empty-state">
+                            <i class="bi bi-search"></i>
+                            <h4>Aucun résultat</h4>
+                            <p class="text-secondary">Aucune note ne correspond à votre recherche</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            let notesHtml = '';
+            allNotes.forEach(note => {
+                const date = new Date(note.createdAt || Date.now());
+                const formattedDate = date.toLocaleDateString('fr-FR', { 
+                    day: 'numeric', 
+                    month: 'long', 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+
+                notesHtml += `
+                    <div class="col-xl-4 col-lg-6">
+                        <div class="note-card">
+                            <div class="note-header">
+                                <h5 class="note-title">${escapeHtml(note.title)}</h5>
+                                <span class="category-tag">
+                                    <i class="bi bi-tag me-1"></i>${note.category || 'Général'}
+                                </span>
+                            </div>
+                            <div class="note-content">
+                                ${escapeHtml(note.content)}
+                            </div>
+                            <div class="note-footer">
+                                <span class="note-date">
+                                    <i class="bi bi-clock me-1"></i>${formattedDate}
+                                </span>
+                                <button onclick="deleteNote('${note._id}')" class="btn-delete">
+                                    <i class="bi bi-trash3 me-1"></i>Supprimer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            div.innerHTML = notesHtml;
+        }
+
+        function updateStats(count) {
+            document.getElementById('totalNotes').innerText = count;
+        }
+
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Initialiser avec des notes de démo si vide
+        if (localNotes.length === 0) {
+            const demos = [
+                {
+                    _id: '1',
+                    title: 'Bienvenue sur NoteFlow Pro',
+                    content: 'Découvrez notre plateforme de notes haut de gamme avec une interface élégante et des fonctionnalités avancées.',
+                    category: 'Personnel',
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    _id: '2',
+                    title: 'Réunion stratégique',
+                    content: 'Préparer la présentation pour le lancement du nouveau produit. Points clés à aborder : roadmap, budget, équipe.',
+                    category: 'Travail',
+                    createdAt: new Date(Date.now() - 86400000).toISOString()
+                },
+                {
+                    _id: '3',
+                    title: 'Idée innovation',
+                    content: 'Développer une fonctionnalité de collaboration en temps réel avec synchronisation instantanée.',
+                    category: 'Idées',
+                    createdAt: new Date(Date.now() - 172800000).toISOString()
+                }
+            ];
+            localNotes = demos;
+            localStorage.setItem('noteflow_notes', JSON.stringify(demos));
+        }
+
+        loadNotes();
+
+        // Ajouter effet de transition
+        document.querySelectorAll('.note-card').forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+        });
+    </script>
+</body>
+</html>
